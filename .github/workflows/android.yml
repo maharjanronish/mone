@@ -1,0 +1,76 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Flutter Release APK (Android 8.0+)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # The project's pubspec.lock was generated with Dart >=2.12 <3.0,
+      # so we pin Flutter 2.10.5 (Dart 2.16) — the last stable that supports it.
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.10.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Java setup
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Debug APK (signed with debug key, installable on Android 8.0+ / API 26)
+      - name: Build Debug APK
+        run: flutter build apk --debug
+
+      # Release APK (this repo signs release with debug keys by default, same as upstream)
+      - name: Build Release APK
+        run: flutter build apk --release
+
+      # Split-per-abi APKs for smaller downloads
+      - name: Build Split APKs per ABI
+        run: flutter build apk --release --split-per-abi
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p artifact
+          cp build/app/outputs/flutter-apk/app-debug.apk artifact/Churu-debug.apk || cp build/app/outputs/apk/debug/app-debug.apk artifact/Churu-debug.apk
+          cp build/app/outputs/flutter-apk/app-release.apk artifact/Churu-release.apk || cp build/app/outputs/apk/release/app-release.apk artifact/Churu-release.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk artifact/ 2>/dev/null || true
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk artifact/ 2>/dev/null || true
+          ls -la artifact
+
+      - name: Upload APKs to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Churu-APK
+          path: artifact/*.apk
+          if-no-files-found: error
+
+      - name: Attach APKs to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: Churu APK (latest build, Android 8.0+)
+          body: Automatically built release APK of the Churu (出入) Flutter app. minSdk 21, runs on Android 5.0 and up — fully compatible with Android 8.0+.
+          files: artifact/*.apk
+          make_latest: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
