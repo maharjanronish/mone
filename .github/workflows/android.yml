@@ -38,15 +38,15 @@ jobs:
 
       # Debug APK (signed with debug key, installable on Android 8.0+ / API 26)
       - name: Build Debug APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug --ignore-deprecation
 
       # Release APK (this repo signs release with debug keys by default, same as upstream)
       - name: Build Release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --ignore-deprecation
 
       # Split-per-abi APKs for smaller downloads
       - name: Build Split APKs per ABI
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi --ignore-deprecation
 
       - name: Collect artifacts
         run: |
