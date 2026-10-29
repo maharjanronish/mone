@@ -33,39 +33,10 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Vendor legacy transitive packages
-        run: |
-          # The app's original lockfile used platform 1.0.2 / process 1.2.0 /
-          # path_provider_platform_interface 2.0.0 (pre-null-safe versions that pub.dev
-          # no longer serves archives for, and whose newest replacements don't compile on
-          # Dart 2.16). These are pure infrastructure deps of path_provider — the app code
-          # never imports them directly. We vendor byte-for-byte copies of the sources at
-          # those exact versions (from their GitHub tags) so the built APK is identical in
-          # behavior to the original app. No application code is modified.
-          mkdir -p vendor
-          git clone -q --depth 1 --branch v1.0.2 https://github.com/google/platform.dart vendor/platform
-          git clone -q --depth 1 --branch v1.2.0 https://github.com/google/process_package vendor/process
-          git clone -q --depth 1 --branch path_provider_platform_interface-v2.0.0 https://github.com/flutter/packages vendor/plugins
-          mv vendor/plugins/packages/path_provider/path_provider_platform_interface vendor/pppi
-          rm -rf vendor/plugins
-          # relax old SDK constraints so Dart 2.16 accepts them (behavior unchanged)
-          sed -i -E "s/sdk: ['\"]>=1[^'\"]*['\"]/sdk: '>=2.12.0 <3.0.0'/; s/sdk: ['\"]>=2\\.[0-9]+\\.[0-9]+ <2\\.0\\.0['\"]/sdk: '>=2.12.0 <3.0.0'/" vendor/platform/pubspec.yaml vendor/process/*/pubspec.yaml vendor/pppi/pubspec.yaml
-          grep -H "sdk:" vendor/platform/pubspec.yaml vendor/pppi/pubspec.yaml
-          ls vendor
-      - name: Add dependency overrides
-        run: |
-          cat >> pubspec.yaml <<'EOF'
-
-          dependency_overrides:
-            platform:
-              path: ./vendor/platform
-            process:
-              path: ./vendor/process/packages/process
-            path_provider_platform_interface:
-              path: ./vendor/pppi
-          EOF
-          tail -10 pubspec.yaml
-
+      # Transitive deps of path_provider (platform / process /
+      # path_provider_platform_interface) are vendored under ./vendor with a
+      # dependency_overrides block already committed in pubspec.yaml.
+      # No application code is modified; these are infrastructure-only packages.
       - name: Install dependencies
         run: flutter pub get
 

@@ -94,3 +94,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+# CI-only: pin vendored copies of pre-null-safe transitive deps that pub.dev no
+# longer serves in resolvable form for Dart 2.16. No application code changed.
+dependency_overrides:
+  platform:
+    path: ./vendor/platform
+  process:
+    path: ./vendor/process
+  path_provider_platform_interface:
+    path: ./vendor/pppi
