@@ -2,6 +2,7 @@
   "numberOfProcessors": 8,
   "pathSeparator": "/",
   "operatingSystem": "macos",
+  "operatingSystemVersion": "10.14.5",
   "localHostname": "platform.test.org",
   "environment": {
     "PATH": "/bin",
@@ -13,7 +14,7 @@
   "executableArguments": [
     "--checked"
   ],
-  "packageRoot": null,
   "packageConfig": null,
-  "version": "1.22.0"
+  "version": "1.22.0",
+  "localeName": "de/de"
 }

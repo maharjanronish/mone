@@ -97,10 +97,11 @@ flutter:
 
 # CI-only: pin vendored copies of pre-null-safe transitive deps that pub.dev no
 # longer serves in resolvable form for Dart 2.16. No application code changed.
+
+# CI-only: vendored null-safe copy of `platform` (byte-for-byte pub.dev 3.1.0,
+# the same major API path_provider's platform interface uses). No app code changed.
 dependency_overrides:
   platform:
     path: ./vendor/platform
-  process:
-    path: ./vendor/process
   path_provider_platform_interface:
     path: ./vendor/pppi

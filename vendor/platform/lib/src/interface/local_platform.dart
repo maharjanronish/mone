@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'dart:io' as io show Platform;
+import 'dart:io' as io show Platform, stdin, stdout;
 
 import 'platform.dart';
 
@@ -19,6 +19,9 @@ class LocalPlatform extends Platform {
 
   @override
   String get operatingSystem => io.Platform.operatingSystem;
+
+  @override
+  String get operatingSystemVersion => io.Platform.operatingSystemVersion;
 
   @override
   String get localHostname => io.Platform.localHostname;
@@ -39,11 +42,17 @@ class LocalPlatform extends Platform {
   List<String> get executableArguments => io.Platform.executableArguments;
 
   @override
-  String get packageRoot => io.Platform.packageRoot;
-
-  @override
-  String get packageConfig => io.Platform.packageConfig;
+  String? get packageConfig => io.Platform.packageConfig;
 
   @override
   String get version => io.Platform.version;
+
+  @override
+  bool get stdinSupportsAnsi => io.stdin.supportsAnsiEscapes;
+
+  @override
+  bool get stdoutSupportsAnsi => io.stdout.supportsAnsiEscapes;
+
+  @override
+  String get localeName => io.Platform.localeName;
 }
